@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const SECRET = '3lz41fmg-bs1-1nf0'
-const { BlockTokenList } = require('../model/Model')
+const BlockTokenList = require('../models/BlockTokenList')
 
 async function authenticateJWT (req, res, next) {
 

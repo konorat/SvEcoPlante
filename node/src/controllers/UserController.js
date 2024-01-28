@@ -1,4 +1,27 @@
 const userModel = require('../models/User')
+const bcrypt = require('bcrypt')
+const SECRET = '3lz41fmg-bs1-1nf0'
+const jwt = require('jsonwebtoken');
+
+async function loginUser(email, password) {
+
+  const user = await userModel.findOne({where: { email: email}})
+
+  if(!user){
+    return "Email Inválido!"
+  }else{
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      console.log("token: " + passwordMatch)
+
+      if(passwordMatch){
+          const token = `Bearer ${jwt.sign({userId: user.id, role: user.role}, SECRET, { expiresIn: 300})}`
+          return token
+      }else{
+          return "Senha inválida"
+      }
+  }
+}
 
 async function listUsers(){
   const users = await userModel.findAll();
@@ -26,4 +49,4 @@ async function updateUser(id_param, userUpdated){
   });
 }
 
-module.exports = {listUsers, createUser, getUser, deleteUser, updateUser}
+module.exports = {loginUser, listUsers, createUser, getUser, deleteUser, updateUser}

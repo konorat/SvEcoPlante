@@ -5,6 +5,11 @@ async function listRegisters(){
   return registers;
 }
 
+async function getRegistersByPlant(idPlant) {
+  const registers = await registerModel.findAll({ where: { idPlant: idPlant } });
+  return registers;
+}
+
 async function createRegister(register){
   return registerModel.create(register);
 }
@@ -26,4 +31,4 @@ async function updateRegister(id_param, registerUpdated){
   });
 }
 
-module.exports = {listRegisters, createRegister, getRegister, deleteRegister, updateRegister}
+module.exports = {listRegisters, getRegistersByPlant, createRegister, getRegister, deleteRegister, updateRegister}
