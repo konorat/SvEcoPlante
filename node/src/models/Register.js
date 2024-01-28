@@ -7,6 +7,7 @@ const Register = sequelize.define('register', {
   watering: Sequelize.BOOLEAN,
   img: Sequelize.STRING,
   fertilizing: Sequelize.BOOLEAN,
+  description: Sequelize.STRING
 })
 
 Register.belongsTo(Plant, {
@@ -14,6 +15,6 @@ Register.belongsTo(Plant, {
     foreignKey: 'idPlant'
   })
 
-sequelize.sync()
+// sequelize.sync()
 
 module.exports = Register
