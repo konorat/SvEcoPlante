@@ -1,5 +1,8 @@
 port = 3000
 
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+
 const express = require('express')
 const db = require('./database/db')
 const app = express()
@@ -19,8 +22,8 @@ app.post('/login', async (req,res) => {
     const {email, password} = req.body;
 
     userController.loginUser(email, password)
-      .then((token) => res.send(token))
-      .catch((error) => res.send(error))
+      .then((token) => { res.json({success:true, data :token}); })
+      .catch((error) => res.json({success:false, message : error}))
 
 })
 
@@ -38,27 +41,32 @@ app.post('/user', (req, res, next) => {
     userController.createUser({
       name: req.body.name,
       email: req.body.email,
+      img: req.body.img,
+      about: req.body.about,
       password: req.body.password
     })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      console.log('Erro ao Cadastrar Usuário', JSON.stringify(err))
-      return res.status(400).send(err)
-    })
+    .then((user) => { res.json({success:true, data :user}); })
+    .catch((error) => res.json({success:false, message : error}))
 })
 
-app.patch('/user/:id', authenticateJWT, (req, res, next) => {
+app.patch('/user', authenticateJWT, (req, res, next) => {
+
+  const userId = returnUserID(req.headers.authorization.split(' ')[1])
+
   const userUpdated = {
-      password: req.body.password
+      name: req.body.name,
+      about: req.body.about,
+      img: req.body.img
   }
-  userController.updateUser(req.params.id, userUpdated).then((msg) => res.send(msg))
-  .catch((err) => {
-    console.log('Erro na consulta', JSON.stringify(err))
-    return res.send(err)
-  });           
+  userController.updateUser(userId, userUpdated)
+    .then((userUpdated) => { res.json({success:true, data :userUpdated}); })
+    .catch((error) => res.json({success:false, message : error}))          
 })
 
 app.post('/plant', authenticateJWT, (req, res, next) => {
+
+  const userId = returnUserID(req.headers.authorization.split(' ')[1])
+
   plantController.createPlant({
     name: req.body.name,
     desc: req.body.desc,
@@ -66,17 +74,25 @@ app.post('/plant', authenticateJWT, (req, res, next) => {
     local: req.body.local,
     care_level: req.body.care_level,
     date_plant: req.body.date_plant,
-    idUser: req.body.idUser
+    idUser: userId
   })
-  .then((plant) => res.send(plant))
-  .catch((err) => {
-    console.log('Erro ao Cadastrar Planta', JSON.stringify(err))
-    return res.status(400).send(err)
-  })
+  .then((plant) => { res.json({success:true, data :plant}); })
+  .catch((error) => res.json({success:false, message : error}))
 })
 
-app.patch('/plant/:id', authenticateJWT, (req, res, next) => {
+app.get('/plants', authenticateJWT, (req, res) => {
+
+  const userId = returnUserID(req.headers.authorization.split(' ')[1])
+
+  plantController.getPlantsByUser(userId)
+    .then((plants) => { res.json({success:true, data :plants}); })
+    .catch((error) => res.json({success:false, message : error}))
+})
+
+app.patch('/plant', authenticateJWT, (req, res, next) => {
+
   const plantUpdated = {
+    id: req.body.id,
     name: req.body.name,
     desc: req.body.desc,
     img: req.body.img,
@@ -84,24 +100,25 @@ app.patch('/plant/:id', authenticateJWT, (req, res, next) => {
     care_level: req.body.care_level
   }
 
-  plantController.updatePlant(req.params.id, plantUpdated).then((msg) => res.send(msg))
-  .catch((err) => {
-    console.log('Erro na consulta', JSON.stringify(err))
-    return res.send(err)
-  });           
+  plantController.updatePlant(plantUpdated)
+  .then(() => { res.json({success:true, data : "Atualizado com sucesso"}); })
+  .catch((error) => res.json({success:false, message : error}))
 })
 
 app.delete('/plant/:id', authenticateJWT, (req, res) => {
   const plantId = req.params.id;
-
+  
   plantController.deletePlant(plantId)
-    .then(() => res.send({ message: 'Plant deleted successfully' }))
-    .catch((err) => {
-      console.log('Error deleting plant', JSON.stringify(err));
-      return res.status(400).send(err);
-    });
+    .then(() => { res.json({success:true, data : "Deletado com sucesso"}); })
+    .catch((error) => res.json({success:false, message : error}))
 });
 
+app.get('/registers/:id', authenticateJWT, (req,res) => {
+
+    registerController.getRegistersByPlant(req.params.id)
+      .then((registers) => { res.json({success:true, data:registers}); })
+      .catch((error) => res.json({success:false, message : error}))
+  })
 
 app.post('/register', authenticateJWT, (req, res, next) => {
   registerController.createRegister({
@@ -112,34 +129,33 @@ app.post('/register', authenticateJWT, (req, res, next) => {
     description: req.body.description,
     idPlant: req.body.idPlant
   })
-  .then((register) => res.send(register))
-  .catch((err) => {
-    console.log('Erro ao Cadastrar Registro', JSON.stringify(err))
-    return res.status(400).send(err)
-  })
+  .then((register) => { res.json({success:true, data:register}); })
+  .catch((error) => res.json({success:false, message : error}))
 })
 
 app.patch('/register/:id', authenticateJWT, (req, res, next) => {
   const registerUpdated = {
       description: req.body.description
   }
-  registerController.updateRegister(req.params.id, registerUpdated).then((msg) => res.send(msg))
-  .catch((err) => {
-    console.log('Erro na consulta', JSON.stringify(err))
-    return res.send(err)
-  });           
+  registerController.updateRegister(req.params.id, registerUpdated)
+    .then((registerUpdated) => { res.json({success:true, data:registerUpdated}); })
+    .catch((error) => res.json({success:false, message : error}))
 })
 
 app.delete('/register/:id', authenticateJWT, (req, res) => {
   const registerId = req.params.id;
 
   registerController.deleteRegister(registerId)
-    .then(() => res.send({ message: 'Register deleted successfully' }))
-    .catch((err) => {
-      console.log('Error deleting register', JSON.stringify(err));
-      return res.status(400).send(err);
-    });
+    .then(() => { res.json({success:true, data: "Deletado com sucesso!"}); })
+    .catch((error) => res.json({success:false, message : error}))
 });
+
+function returnUserID(authorization){
+
+  const { userId } = jwt.decode(authorization)
+
+  return userId
+}
 
 app.listen(port, () => {
     console.log(`Servidor iniciado! Porta: ${port}`)

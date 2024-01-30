@@ -6,11 +6,9 @@ const Plant = sequelize.define('plant', {
   desc: Sequelize.STRING,
   img: Sequelize.STRING,
   local: Sequelize.STRING,
-  care_level: Sequelize.INTEGER,
+  care_level: Sequelize.STRING,
   date_plant: Sequelize.STRING,
 })
-
-
 
 Plant.belongsTo(User, {
     constraint: true,

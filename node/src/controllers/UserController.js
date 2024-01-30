@@ -8,17 +8,17 @@ async function loginUser(email, password) {
   const user = await userModel.findOne({where: { email: email}})
 
   if(!user){
-    return "Email Inválido!"
+    throw new Error("Email não encontrado");
   }else{
       const passwordMatch = await bcrypt.compare(password, user.password);
 
       console.log("token: " + passwordMatch)
 
       if(passwordMatch){
-          const token = `Bearer ${jwt.sign({userId: user.id, role: user.role}, SECRET, { expiresIn: 300})}`
-          return token
+          const token = `Bearer ${jwt.sign({userId: user.id, role: user.role}, SECRET, { expiresIn: 10000000})}`
+          return {...user,token}
       }else{
-          return "Senha inválida"
+          throw new Error("Senha inválida!")
       }
   }
 }
@@ -46,7 +46,8 @@ async function updateUser(id_param, userUpdated){
     where: {
       id: id_param
     }
-  });
+  })
+  return userUpdated;
 }
 
 module.exports = {loginUser, listUsers, createUser, getUser, deleteUser, updateUser}

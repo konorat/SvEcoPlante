@@ -23,10 +23,10 @@ async function getPlant(id_param){
   return plant;
 }
 
-async function updatePlant(id_param, userUpdated){
-  await plantModel.update(userUpdated,{
+async function updatePlant(plantUpdated){
+  await plantModel.update(plantUpdated,{
     where: {
-      id: id_param
+      id: plantUpdated.id
     }
   });
 }

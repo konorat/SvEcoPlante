@@ -3,10 +3,10 @@ const bcrypt = require('bcrypt');
 const Plant = require('./Plant')
 
 const Register = sequelize.define('register', {
-  pruning: Sequelize.BOOLEAN,
-  watering: Sequelize.BOOLEAN,
+  pruning: Sequelize.STRING,
+  watering: Sequelize.STRING,
   img: Sequelize.STRING,
-  fertilizing: Sequelize.BOOLEAN,
+  fertilizing: Sequelize.STRING,
   description: Sequelize.STRING
 })
 
@@ -15,6 +15,6 @@ Register.belongsTo(Plant, {
     foreignKey: 'idPlant'
   })
 
-// sequelize.sync()
+sequelize.sync()
 
 module.exports = Register
