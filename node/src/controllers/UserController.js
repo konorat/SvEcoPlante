@@ -5,44 +5,44 @@ const jwt = require('jsonwebtoken');
 
 async function loginUser(email, password) {
 
-  const user = await userModel.findOne({where: { email: email}})
+  const user = await userModel.findOne({ where: { email: email } })
 
-  if(!user){
+  if (!user) {
     throw new Error("Email não encontrado");
-  }else{
-      const passwordMatch = await bcrypt.compare(password, user.password);
+  } else {
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
-      console.log("token: " + passwordMatch)
+    console.log("token: " + passwordMatch)
 
-      if(passwordMatch){
-          const token = `Bearer ${jwt.sign({userId: user.id, role: user.role}, SECRET, { expiresIn: 10000000})}`
-          return {...user,token}
-      }else{
-          throw new Error("Senha inválida!")
-      }
+    if (passwordMatch) {
+      const token = `Bearer ${jwt.sign({ userId: user.id, role: user.role }, SECRET, { expiresIn: '10h' })}`
+      return { ...user, token }
+    } else {
+      throw new Error("Senha inválida!")
+    }
   }
 }
 
-async function listUsers(){
+async function listUsers() {
   const users = await userModel.findAll();
   return users;
 }
 
-async function createUser(user){
+async function createUser(user) {
   return userModel.create(user);
 }
 
-async function deleteUser(id_param){
-  await userModel.destroy({where : {id : id_param}}); // Replace deleteItem with destroy
+async function deleteUser(id_param) {
+  await userModel.destroy({ where: { id: id_param } }); // Replace deleteItem with destroy
 }
 
-async function getUser(id_param){
-  const user = await userModel.findOne({where : {id : id_param}})
+async function getUser(id_param) {
+  const user = await userModel.findOne({ where: { id: id_param } })
   return user;
 }
 
-async function updateUser(id_param, userUpdated){
-  await userModel.update(userUpdated,{
+async function updateUser(id_param, userUpdated) {
+  await userModel.update(userUpdated, {
     where: {
       id: id_param
     }
@@ -50,4 +50,4 @@ async function updateUser(id_param, userUpdated){
   return userUpdated;
 }
 
-module.exports = {loginUser, listUsers, createUser, getUser, deleteUser, updateUser}
+module.exports = { loginUser, listUsers, createUser, getUser, deleteUser, updateUser }

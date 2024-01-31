@@ -1,5 +1,5 @@
 // const { Model } = require('sequelize');
-const {Sequelize, sequelize } = require('../database/db')
+const { Sequelize, sequelize } = require('../database/db')
 const bcrypt = require('bcrypt');
 
 // class User extends Model {}
@@ -19,36 +19,36 @@ const bcrypt = require('bcrypt');
 //   }
 // }, { sequelize, modelName: 'users' })
 
-const User = sequelize.define('user', {
-    name: {type: Sequelize.STRING},
-    email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-    },
-    img: {
-      type: Sequelize.STRING,
+const User = sequelize.define('users', {
+  name: { type: Sequelize.STRING },
+  email: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  img: {
+    type: Sequelize.TEXT,
 
-    },
-    about: {
-      type: Sequelize.STRING,
-    },
-    password: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    role: {
-      type: Sequelize.STRING,
+  },
+  about: {
+    type: Sequelize.STRING,
+  },
+  password: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  role: {
+    type: Sequelize.STRING,
   }
 })
 
 User.beforeCreate(async (user) => {
-    user.role = 'user'
-    if (user.password) {
-      const saltRounds = 10;
-      user.password = await bcrypt.hash(user.password, saltRounds);
-    }
-  });
+  user.role = 'user'
+  if (user.password) {
+    const saltRounds = 10;
+    user.password = await bcrypt.hash(user.password, saltRounds);
+  }
+});
 
 // User.beforeUpdate(async (user) => {
 //   if (user.password) {
